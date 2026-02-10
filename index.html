@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+            color: #ffffff;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 80px;
+            background: linear-gradient(180deg, #141414 0%, #1e1e1e 100%);
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        .sidebar.expanded {
+            width: 280px;
+        }
+        .sidebar-toggle {
+            position: absolute;
+            top: 20px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            z-index: 10;
+        }
+        .sidebar-toggle:hover {
+            transform: scale(1.1);
+        }
+        .sidebar h1 {
+            margin: 20px 0 40px 0;
+            font-size: 24px;
+            text-align: center;
+            color: #ffffff;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+        .sidebar.expanded h1 {
+            opacity: 1;
+        }
+        .category {
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 12px 15px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            position: relative;
+            font-weight: 400;
+        }
+        .sidebar:not(.expanded) .category {
+            justify-content: center;
+        }
+        .category:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        .category.highlighted {
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+        .category-text {
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .sidebar.expanded .category-text {
+            opacity: 1;
+        }
+        .main {
+            flex: 1;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #ffffff;
+            display: none;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow-y: auto;
+        }
+        .main.visible {
+            display: block;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 20px;
+            cursor: pointer;
+            color: #ffffff;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 300;
+        }
+        .close-btn:hover {
+            color: #ff6b6b;
+            transform: scale(1.1);
+            background: rgba(255, 107, 107, 0.2);
+        }
+        .content {
+            margin-top: 80px;
+            transition: opacity 0.3s ease;
+            height: calc(100% - 80px);
+        }
+        .content h2 {
+            margin-bottom: 20px;
+            font-weight: 500;
+            border-bottom: 2px solid #ffffff;
+            padding-bottom: 10px;
+            font-size: 24px;
+        }
+        .sub-item {
+            font-size: 16px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 10px 15px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 400;
+        }
+        .sub-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        .sub-item.highlighted {
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        .dropdown {
+            margin-left: 20px;
+            margin-top: 10px;
+            display: none;
+            transition: all 0.3s ease;
+        }
+        .dropdown-item {
+            font-size: 14px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: 400;
+        }
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateX(5px);
+        }
+        .dropdown-item.highlighted {
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        .placeholder {
+            font-size: 14px;
+            margin-left: 20px;
+            margin-bottom: 10px;
+            display: none;
+            color: #cccccc;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            font-weight: 300;
+        }
+        .member-detail {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+        }
+        .member-detail img {
+            max-width: 180px;
+            height: auto;
+            display: block;
+            margin-bottom: 30px;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+        .member-detail img:hover {
+            transform: scale(1.05);
+        }
+        .member-detail.hannah img {
+            box-shadow: 0 0 30px rgba(0, 18, 34, 0.8);
+        }
+        .member-detail.jacob img {
+            box-shadow: 0 0 30px rgba(25, 0, 51, 0.8);
+        }
+        .member-detail.chase img {
+            box-shadow: 0 0 30px rgba(64, 64, 64, 0.8);
+        }
+        .member-info {
+            background: linear-gradient(135deg, rgba(51, 51, 51, 0.9) 0%, rgba(68, 68, 68, 0.9) 100%);
+            padding: 30px;
+            border-radius: 15px;
+            border: 2px solid #ffffff;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        .member-info.hannah {
+            background: linear-gradient(135deg, rgba(0, 18, 34, 0.9) 0%, rgba(0, 30, 56, 0.9) 100%);
+            border: 2px solid #ffffff;
+        }
+        .member-info.jacob {
+            background: linear-gradient(135deg, rgba(25, 0, 51, 0.9) 0%, rgba(40, 0, 80, 0.9) 100%);
+            border: 2px solid #000000;
+        }
+        .member-info.chase {
+            background: linear-gradient(135deg, rgba(64, 64, 64, 0.9) 0%, rgba(80, 80, 80, 0.9) 100%);
+            border: 2px solid #ffffff;
+        }
+        .member-info p {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        .member-info p strong {
+            color: #ffffff;
+            font-weight: 500;
+        }
+        .confirmation {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #333333 0%, #444444 100%);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            display: none;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .confirmation p {
+            margin-bottom: 20px;
+            font-size: 16px;
+            font-weight: 400;
+        }
+        .confirmation button {
+            margin: 0 10px;
+            padding: 12px 25px;
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+        .confirmation button:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 60px;
+            }
+            .sidebar.expanded {
+                width: 250px;
+            }
+            .sidebar h1 {
+                font-size: 20px;
+            }
+            .category {
+                font-size: 14px;
+            }
+            .member-info {
+                padding: 20px;
+            }
+            .member-detail img {
+                max-width: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <h1>GROUP 1</h1>
+        <div class="category" id="members" onclick="toggleCategory('members')">
+            <span class="category-text">Members</span>
+        </div>
+        <div class="category" id="word" onclick="toggleCategory('word')">
+            <span class="category-text">Word</span>
+        </div>
+        <div class="category" id="excel" onclick="toggleCategory('excel')">
+            <span class="category-text">Excel</span>
+        </div>
+        <div class="category" id="powerpoint" onclick="toggleCategory('powerpoint')">
+            <span class="category-text">PowerPoint</span>
+        </div>
+    </div>
+    <div class="main" id="main">
+        <span class="close-btn" onclick="handleClose()">&times;</span>
+        <div class="content" id="content">
+            <h2>Main Content</h2>
+            <p>Select a category to view its content.</p>
+        </div>
+    </div>
+    <div class="confirmation" id="confirmation">
+        <p>Are you sure you want to view this member's details?</p>
+        <button onclick="confirmOpen()">Yes</button>
+        <button onclick="cancelOpen()">No</button>
+    </div>
+
+    <script>
+        let currentCategory = '';
+        let pendingMember = '';
+        let sidebarExpanded = false;
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebarExpanded = !sidebarExpanded;
+            if (sidebarExpanded) {
+                sidebar.classList.add('expanded');
+            } else {
+                sidebar.classList.remove('expanded');
+                closeMain();
+            }
+        }
+
+        function toggleCategory(category) {
+            if (!sidebarExpanded) {
+                toggleSidebar();
+                setTimeout(() => openCategory(category), 400);
+            } else {
+                const catElement = document.getElementById(category);
+                if (catElement.classList.contains('highlighted')) {
+                    closeMain();
+                } else {
+                    openCategory(category);
+                }
+            }
+        }
+
+        function openCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category').forEach(cat => cat.classList.remove('highlighted'));
+            document.getElementById(category).classList.add('highlighted');
+
+            const main = document.getElementById('main');
+            main.classList.add('visible');
+
+            const content = document.getElementById('content');
+            content.style.opacity = '0';
+            setTimeout(() => {
+                switch(category) {
+                    case 'members':
+                        content.innerHTML =
+                            '<h2>Members</h2>' +
+                            '<div class="sub-item" onclick="toggleDropdown(this)">Leader</div>' +
+                            '<div class="dropdown"><div class="dropdown-item" onclick="confirmMember(\'leader\')">Hannah</div></div>' +
+                            '<div class="sub-item" onclick="toggleDropdown(this)">Website Maker</div>' +
+                            '<div class="dropdown"><div class="dropdown-item" onclick="confirmMember(\'website_maker\')">Jacob</div></div>' +
+                            '<div class="sub-item" onclick="toggleDropdown(this)">Members</div>' +
+                            '<div class="dropdown"><div class="dropdown-item" onclick="confirmMember(\'member\')">Chase</div></div>';
+                        break;
+                    case 'word':
+                        content.innerHTML =
+                            '<h2>Word</h2>' +
+                            '<div class="sub-item" onclick="togglePlaceholder(this)">Research</div>' +
+                            '<div class="placeholder">N/A (Courtesy: Hannah Sophia Gabi)</div>' +
+                            '<div class="sub-item" onclick="togglePlaceholder(this)">Questionnaire</div>' +
+                            '<div class="placeholder">N/A (Courtesy: Hannah Sophia Gabi)</div>';
+                        break;
+                    case 'excel':
+                        content.innerHTML =
+                            '<h2>Excel</h2>' +
+                            '<div class="sub-item" onclick="togglePlaceholder(this)">Data</div>' +
+                            '<div class="placeholder">N/A (Courtesy: Hannah Sophia Gabi)</div>';
+                        break;
+                    case 'powerpoint':
+                        content.innerHTML =
+                            '<h2>PowerPoint</h2>' +
+                            '<div class="sub-item" onclick="togglePlaceholder(this)">PowerPoint Presentation</div>' +
+                            '<div class="placeholder">N/A (Courtesy: Hannah Sophia Gabi)</div>';
+                        break;
+                }
+                content.style.opacity = '1';
+            }, 250);
+        }
+
+        function toggleDropdown(element) {
+            document.querySelectorAll('.sub-item').forEach(item => item.classList.remove('highlighted'));
+            element.classList.add('highlighted');
+
+            const dropdown = element.nextElementSibling;
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function confirmMember(member) {
+            document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('highlighted'));
+            event.target.classList.add('highlighted');
+
+            pendingMember = member;
+            document.getElementById('confirmation').style.display = 'block';
+        }
+
+        function confirmOpen() {
+            document.getElementById('confirmation').style.display = 'none';
+            openMember(pendingMember);
+            pendingMember = '';
+        }
+
+        function cancelOpen() {
+            document.getElementById('confirmation').style.display = 'none';
+            pendingMember = '';
+        }
+
+        function openMember(member) {
+            const content = document.getElementById('content');
+            content.style.opacity = '0';
+            setTimeout(() => {
+                let name = '';
+                let imgSrc = '';
+                let quote = '';
+                let helpedWith = '';
+                let trivia = '';
+                let rating = '';
+                let imgClass = '';
+                let infoClass = '';
+
+                switch(member) {
+                    case 'leader':
+                        name = 'Hannah Sophia Gabi';
+                        imgSrc = 'hannah.png';
+                        quote = 'Being alive is the biggest punishment as to being dead.';
+                        helpedWith = 'PowerPoint Presentation';
+                        trivia = 'She does not study honestly.';
+                        rating = '10/10';
+                        imgClass = 'hannah';
+                        infoClass = 'hannah';
+                        break;
+                    case 'website_maker':
+                        name = 'Jacob';
+                        imgSrc = 'jacob.png';
+                        quote = 'Life is not about avoiding the thunderstorms, its about learning how to dance in the rain.';
+                        helpedWith = 'Website and Excel.';
+                        trivia = 'He is infact Protanopic.';
+                        rating = 'N/A (Courtesy: Hannah Sophia Gabi)';
+                        imgClass = 'jacob';
+                        infoClass = 'jacob';
+                        break;
+                    case 'member':
+                        name = 'Chase';
+                        imgSrc = 'chase.png';
+                        quote = 'You either interrupt the story or you stay in the same chapter';
+                        helpedWith = 'Questionnaire and Research';
+                        trivia = 'He used to be a extrovert';
+                        rating = 'N/A (Courtesy: Hannah Sophia Gabi)';
+                    imgClass = 'chase';
+                    infoClass = 'chase';
+                    break;
+            }
+
+            content.innerHTML =
+                '<div class="member-detail ' + imgClass + '">' +
+                '<img src="' + imgSrc + '" alt="' + name + '">' +
+                '<div class="member-info ' + infoClass + '">' +
+                '<p><strong>Name:</strong> ' + name + '</p>' +
+                '<p><strong>Quote:</strong> ' + quote + '</p>' +
+                '<p><strong>Helped with:</strong> ' + helpedWith + '</p>' +
+                '<p><strong>Trivia:</strong> ' + trivia + '</p>' +
+                '<p><strong>Rating:</strong> ' + rating + '</p>' +
+                '</div></div>';
+
+            content.style.opacity = '1';
+        }, 250);
+    }
+
+    function togglePlaceholder(element) {
+        const content = element.closest('.content');
+        content.querySelectorAll('.sub-item').forEach(item => item.classList.remove('highlighted'));
+        element.classList.add('highlighted');
+
+        const placeholder = element.nextElementSibling;
+        placeholder.style.display = placeholder.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function handleClose() {
+        if (currentCategory === 'members' && document.querySelector('.member-detail')) {
+            openCategory('members');
+        } else {
+            closeMain();
+        }
+    }
+
+    function closeMain() {
+        const sidebar = document.getElementById('sidebar');
+        const main = document.getElementById('main');
+        sidebar.classList.remove('expanded');
+        main.classList.remove('visible');
+        document.querySelectorAll('.category, .sub-item, .dropdown-item').forEach(item => item.classList.remove('highlighted'));
+        currentCategory = '';
+    }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+i love gwen
+
+last progress done --- 2.10.2026 
+
+next thing to do, connect everything tgt.. and add manio.
