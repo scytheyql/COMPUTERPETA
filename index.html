@@ -3,447 +3,713 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UI Interface</title>
+    <title>GROUP 1 // Research Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Playfair+Display:wght@400;700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg:       #05060f;
+            --surface:  #0c0e1e;
+            --panel:    #10132a;
+            --border:   rgba(255,255,255,0.07);
+            --accent:   #4d7fff;
+            --accent2:  #a78bfa;
+            --text:     #e8eaf6;
+            --muted:    #6b7280;
+            --glow:     rgba(77,127,255,0.2);
+        }
+
+        html, body { height: 100%; overflow: hidden; }
+
         body {
-            font-family: 'Times New Roman', Times, serif;
-            margin: 0;
-            padding: 0;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             display: flex;
             height: 100vh;
-            transition: all 0.5s ease;
-            background-color: #050118;
-            color: #ffffff;
         }
+
+        /* === NOISE OVERLAY === */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            opacity: 0.35;
+        }
+
+        /* === SIDEBAR === */
         .sidebar {
             width: 100vw;
-            background-color: #050118;
-            padding: 20px;
-            box-sizing: border-box;
+            background: var(--bg);
             display: flex;
             flex-direction: column;
             justify-content: center;
-            align-items: center;
-            transition: width 0.5s ease;
+            align-items: flex-start;
+            padding: 48px 56px;
+            transition: width 0.55s cubic-bezier(0.77,0,0.18,1);
+            position: relative;
+            z-index: 10;
+            flex-shrink: 0;
+            border-right: 1px solid transparent;
         }
         .sidebar.expanded {
-            width: 350px;
+            width: 320px;
+            border-right-color: var(--border);
         }
-        .sidebar h1 {
-            margin-top: 0;
-            font-size: 48px;
-            text-align: center;
-            color: #ffffff;
+
+        /* Subtle corner accent */
+        .sidebar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 2px; height: 60px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
         }
+
+        .brand {
+            margin-bottom: 48px;
+        }
+        .brand-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.22em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .brand-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 42px;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--text);
+            letter-spacing: -0.02em;
+        }
+
+        .nav-divider {
+            width: 100%;
+            height: 1px;
+            background: var(--border);
+            margin-bottom: 32px;
+        }
+
         .category {
-            margin-bottom: 20px;
-            font-size: 32px;
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 10px;
-            border-radius: 5px;
+            padding: 10px 14px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s, color 0.2s;
+            color: var(--muted);
+            position: relative;
             white-space: nowrap;
+            overflow: hidden;
+        }
+        .category .arrow {
+            font-size: 10px;
+            transition: transform 0.3s;
+            opacity: 0.5;
         }
         .category:hover {
-            background-color: #ffffff;
-            color: #000000
+            background: rgba(255,255,255,0.04);
+            color: var(--text);
         }
         .category.highlighted {
-            background-color: #ffffff;
-            color: #000000;
-            text-decoration: underline;
-            animation: flicker 0.5s ease-in-out;
+            background: var(--glow);
+            color: var(--accent);
+            border: 1px solid rgba(94,106,255,0.3);
         }
-        .category.highlighted::after {
-            content: '|';
-            animation: blink 1s infinite;
-        }
-        @keyframes flicker {
-            0% { opacity: 1; }
-            25% { opacity: 0.5; }
-            50% { opacity: 1; }
-            75% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-        .main {
-            flex: 1;
-            padding: 20px;
-            background-color: #000024;
-            color: #ffffff;
-            display: none;
-            transition: opacity 0.5s ease;
-            position: relative;
-        }
-        .main.visible {
-            display: block;
+        .category.highlighted .arrow {
+            transform: rotate(90deg);
             opacity: 1;
         }
+        /* typewriter text span inside .category.highlighted */
+        .category.highlighted .label-text,
+        .sub-item.highlighted .label-text,
+        .dropdown-item.highlighted .label-text {
+            display: inline-block;
+        }
+
+        /* === MAIN PANEL === */
+        .main {
+            flex: 1;
+            background: var(--surface);
+            display: none;
+            position: relative;
+            z-index: 5;
+            overflow: hidden;
+        }
+        .main.visible { display: flex; flex-direction: column; }
+
+        /* top bar */
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 28px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+        .breadcrumb {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.15em;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+        .breadcrumb span { color: var(--accent); }
+
         .close-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 48px;
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            color: #ffffff;
-            transition: color 0.3s ease;
+            font-size: 16px;
+            color: var(--muted);
+            transition: border-color 0.2s, color 0.2s, background 0.2s;
         }
         .close-btn:hover {
-            color: #ff0000;
+            border-color: #ff4d6d;
+            color: #ff4d6d;
+            background: rgba(255,77,109,0.08);
         }
+
         .content {
-            margin-top: 60px;
-            transition: opacity 0.5s ease;
-            height: calc(100% - 60px);
+            flex: 1;
+            padding: 36px 32px;
+            overflow-y: auto;
+            transition: opacity 0.3s;
         }
+        .content::-webkit-scrollbar { width: 4px; }
+        .content::-webkit-scrollbar-track { background: transparent; }
+        .content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+        /* === SECTION TITLE === */
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+        .section-sub {
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+            margin-bottom: 32px;
+        }
+
+        /* === SUB ITEMS === */
         .sub-item {
-            font-size: 22px;
-            margin-bottom: 10px;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
             cursor: pointer;
-            transition: all 0.3s ease;
-            padding: 5px;
-            border-radius: 3px;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+            color: var(--muted);
             white-space: nowrap;
+            overflow: hidden;
         }
         .sub-item:hover {
-            background-color: #1a1a1a;
+            background: rgba(255,255,255,0.03);
+            border-color: rgba(255,255,255,0.12);
+            color: var(--text);
         }
         .sub-item.highlighted {
-            background-color: #ffffff;
-            color: #000000;
-            text-decoration: underline;
-            animation: flicker 0.5s ease-in-out;
+            background: var(--glow);
+            border-color: rgba(94,106,255,0.4);
+            color: var(--accent);
         }
-        .sub-item.highlighted::after {
-            content: '|';
-            animation: blink 1s infinite;
-        }
+        .sub-item .arrow { font-size: 9px; transition: transform 0.3s; }
+        .sub-item.highlighted .arrow { transform: rotate(90deg); }
+
+        /* === DROPDOWN === */
         .dropdown {
-            margin-left: 20px;
             display: none;
-            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            padding-left: 16px;
         }
         .dropdown-item {
-            font-size: 20px;
-            margin-bottom: 5px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 14px;
             cursor: pointer;
-            padding: 5px;
-            border-radius: 3px;
-            transition: background-color 0.3s ease;
-        }
-        .dropdown-item:hover {
-            background-color: #1a1a1a;
-        }
-        .dropdown-item.highlighted {
-            background-color: #ffffff;
-            color: #000000;
-            text-decoration: underline;
-            animation: flicker 0.5s ease-in-out;
-        }
-        .dropdown-item.highlighted::after {
-            content: '|';
-            animation: blink 1s infinite;
-        }
-        .placeholder {
-            font-size: 18px;
-            margin-left: 20px;
-            margin-bottom: 5px;
-            display: none;
-            color: #cccccc;
+            padding: 9px 14px;
+            border-radius: 6px;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s, color 0.2s;
             white-space: nowrap;
+            overflow: hidden;
         }
-        .member-detail {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
+        .dropdown-item::before {
+            content: '─';
+            font-size: 10px;
+            opacity: 0.3;
         }
-        .member-detail img {
-            max-width: 200px;
-            height: auto;
-            display: block;
-            margin: 0 auto 20px;
-            flex-shrink: 0;
-            border-radius: 50%;
+        .dropdown-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+        .dropdown-item.highlighted {
+            background: var(--glow);
+            color: var(--accent2);
         }
-        .member-detail.hannah img {
-            border: 5px solid #000000;
-            box-shadow: 0 0 20px rgba(0, 18, 34, 0.8);
-        }
-        .member-detail.jacob img {
-            border: 5px solid #0000FF;
-            box-shadow: 0 0 20px rgba(25, 0, 51, 0.8);
-        }
-        .member-detail.chase img {
-            border: 5px solid #808080;
-            box-shadow: 0 0 20px rgba(64, 64, 64, 0.8);
-        }
-        .member-info {
-            background-color: rgba(51, 51, 51, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            border: 2px solid #ffffff;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .member-info.hannah {
-            background-color: rgba(0, 18, 34, 0.8);
-            border: 2px solid #ffffff;
-        }
-        .member-info.jacob {
-            background-color: rgba(25, 0, 51, 0.8);
-            border: 2px solid #000000;
-        }
-        .member-info.chase {
-            background-color: rgba(64, 64, 64, 0.8);
-            border: 2px solid #ffffff;
-        }
-        .member-info p {
-            font-size: 20px;
-            margin-bottom: 10px;
-        }
-        .confirmation {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(25, 25, 112, 0.8);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            z-index: 1000;
+
+        /* === PLACEHOLDER === */
+        .placeholder {
             display: none;
+            font-family: 'DM Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            padding: 8px 16px 14px;
+            letter-spacing: 0.08em;
+            border-left: 1px solid var(--border);
+            margin: 4px 0 10px 16px;
         }
-        .confirmation button {
-            margin: 10px;
-            padding: 10px 20px;
-            background-color: #ffffff;
-            color: #000000;
-            border: none;
-            border-radius: 5px;
+
+        /* === MEMBER CARD === */
+        .member-card {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 28px;
+            align-items: start;
+        }
+        .member-avatar-wrap {
+            position: relative;
+        }
+        .member-avatar-wrap img {
+            width: 120px; height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            border: 2px solid var(--border);
+        }
+        .avatar-ring {
+            position: absolute; inset: -5px;
+            border-radius: 50%;
+            border: 1.5px solid var(--accent);
+            opacity: 0.4;
+            animation: spin 8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .member-info-grid { display: flex; flex-direction: column; gap: 10px; }
+        .member-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+        .member-role {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.18em;
+            color: var(--accent);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .info-row {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+        }
+        .info-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .info-value {
+            font-size: 14px;
+            color: var(--text);
+            line-height: 1.5;
+        }
+        .rating-badge {
+            display: inline-block;
+            background: var(--glow);
+            border: 1px solid rgba(94,106,255,0.3);
+            color: var(--accent);
+            font-family: 'DM Mono', monospace;
+            font-size: 13px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            letter-spacing: 0.08em;
+        }
+
+        /* === CONFIRMATION MODAL === */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 1000;
+            background: rgba(5,6,15,0.85);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(6px);
+        }
+        .modal-overlay.visible { display: flex; }
+        .modal {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 32px 36px;
+            max-width: 360px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .modal p {
+            font-size: 15px;
+            color: var(--muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+        .modal-btns { display: flex; gap: 10px; justify-content: center; }
+        .btn {
+            padding: 9px 22px;
+            border-radius: 7px;
+            font-family: 'DM Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
             cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
         }
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+        .btn-primary:hover { background: #4a56e8; }
+        .btn-ghost {
+            background: transparent;
+            border-color: var(--border);
+            color: var(--muted);
+        }
+        .btn-ghost:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
     </style>
 </head>
 <body>
+
     <div class="sidebar" id="sidebar">
-        <h1>GROUP 1</h1>
-        <div class="category" id="members" onclick="toggleCategory('members')">&gt; Members</div>
-        <div class="category" id="word" onclick="toggleCategory('word')">&gt; Word</div>
-        <div class="category" id="excel" onclick="toggleCategory('excel')">&gt; Excel</div>
-        <div class="category" id="powerpoint" onclick="toggleCategory('powerpoint')">&gt; PowerPoint</div>
-    </div>
-    <div class="main" id="main">
-        <span class="close-btn" onclick="handleClose()">&times;</span>
-        <div class="content" id="content">
-            <h2>Main Content</h2>
-            <p>Select a category to view its content.</p>
+        <div class="brand">
+            <div class="brand-label">Research Hub</div>
+            <div class="brand-title">GROUP<br>ONE</div>
+        </div>
+        <div class="nav-divider"></div>
+
+        <div class="category" id="members" onclick="toggleCategory('members')">
+            <span class="arrow">▶</span>
+            <span class="label-text">Members</span>
+        </div>
+        <div class="category" id="word" onclick="toggleCategory('word')">
+            <span class="arrow">▶</span>
+            <span class="label-text">Word</span>
+        </div>
+        <div class="category" id="excel" onclick="toggleCategory('excel')">
+            <span class="arrow">▶</span>
+            <span class="label-text">Excel</span>
+        </div>
+        <div class="category" id="powerpoint" onclick="toggleCategory('powerpoint')">
+            <span class="arrow">▶</span>
+            <span class="label-text">PowerPoint</span>
         </div>
     </div>
-    <div class="confirmation" id="confirmation">
-        <p>Are you sure you want to view this member's details?</p>
-        <button onclick="confirmOpen()">Yes</button>
-        <button onclick="cancelOpen()">No</button>
+
+    <div class="main" id="main">
+        <div class="top-bar">
+            <div class="breadcrumb">GROUP ONE &nbsp;/&nbsp; <span id="breadcrumb-label">—</span></div>
+            <div class="close-btn" onclick="handleClose()">✕</div>
+        </div>
+        <div class="content" id="content"></div>
     </div>
 
-    <script>
-        let currentCategory = '';
-        let pendingMember = '';
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <p>Open this member's profile?</p>
+            <div class="modal-btns">
+                <button class="btn btn-primary" onclick="confirmOpen()">View Profile</button>
+                <button class="btn btn-ghost" onclick="cancelOpen()">Cancel</button>
+            </div>
+        </div>
+    </div>
 
-        function toggleCategory(category) {
-            const catElement = document.getElementById(category);
-            if (catElement.classList.contains('highlighted')) {
-                closeMain();
+<script>
+    let currentCategory = '';
+    let pendingMember = '';
+
+    // ── TYPEWRITER LOOP ──────────────────────────────────────────────
+    const typewriterMap = new WeakMap(); // el → { interval, text }
+
+    function startTypewriter(el) {
+        if (typewriterMap.has(el)) return;
+        const labelEl = el.querySelector('.label-text') || el;
+        const fullText = labelEl.dataset.original || labelEl.textContent;
+        labelEl.dataset.original = fullText;
+
+        let i = 0;
+        let phase = 'typing'; // typing | pause | erasing
+        let pauseTicks = 0;
+
+        const interval = setInterval(() => {
+            if (phase === 'typing') {
+                i++;
+                labelEl.textContent = fullText.slice(0, i) + '█';
+                if (i >= fullText.length) { phase = 'pause'; pauseTicks = 0; }
+            } else if (phase === 'pause') {
+                pauseTicks++;
+                if (pauseTicks >= 6) phase = 'erasing';
             } else {
-                openCategory(category);
+                i--;
+                labelEl.textContent = i > 0 ? fullText.slice(0, i) + '█' : '█';
+                if (i <= 0) { phase = 'typing'; i = 0; }
             }
+        }, 70);
+
+        typewriterMap.set(el, { interval, labelEl, fullText });
+    }
+
+    function stopTypewriter(el) {
+        const data = typewriterMap.get(el);
+        if (!data) return;
+        clearInterval(data.interval);
+        data.labelEl.textContent = data.fullText;
+        typewriterMap.delete(el);
+    }
+
+    function attachTypewriter(el) {
+        el.addEventListener('mouseenter', () => startTypewriter(el));
+        el.addEventListener('mouseleave', () => stopTypewriter(el));
+    }
+
+    // Attach to sidebar categories on load
+    document.querySelectorAll('.category').forEach(attachTypewriter);
+
+    // ── CATEGORY TOGGLE ──────────────────────────────────────────────
+    function toggleCategory(cat) {
+        if (document.getElementById(cat).classList.contains('highlighted')) {
+            closeMain();
+        } else {
+            openCategory(cat);
         }
+    }
 
-        function openCategory(category) {
-            currentCategory = category;
-            document.querySelectorAll('.category').forEach(cat => cat.classList.remove('highlighted'));
-            document.getElementById(category).classList.add('highlighted');
+    function openCategory(cat) {
+        currentCategory = cat;
+        document.querySelectorAll('.category').forEach(c => {
+            c.classList.remove('highlighted');
+            stopTypewriter(c);
+        });
+        const catEl = document.getElementById(cat);
+        catEl.classList.add('highlighted');
+        startTypewriter(catEl);
 
-            const sidebar = document.getElementById('sidebar');
-            const main = document.getElementById('main');
-            sidebar.classList.add('expanded');
-            main.classList.add('visible');
+        document.getElementById('sidebar').classList.add('expanded');
+        const main = document.getElementById('main');
+        main.classList.add('visible');
+        document.getElementById('breadcrumb-label').textContent = catEl.querySelector('.label-text').dataset.original || cat;
 
-            const content = document.getElementById('content');
-            content.style.opacity = '0';
-            setTimeout(() => {
-                switch(category) {
-                    case 'members':
-                        content.innerHTML =
-                            '<h2>Members</h2>' +
-                            '<div class="sub-item" onclick="toggleDropdown(this)">&gt; Leader</div>' +
-                            '<div class="dropdown"><div class="dropdown-item" onclick="confirmMember(\'leader\')">&gt; Hannah</div></div>' +
-                            '<div class="sub-item" onclick="toggleDropdown(this)">&gt; Website Maker</div>' +
-                            '<div class="dropdown"><div class="dropdown-item" onclick="confirmMember(\'website_maker\')">&gt; Jacob</div></div>' +
-                            '<div class="sub-item" onclick="toggleDropdown(this)">&gt; Members</div>' +
-                            '<div class="dropdown"><div class="dropdown-item" onclick="confirmMember(\'member\')">&gt; Chase</div></div>';
-                        break;
-                    case 'word':
-                        content.innerHTML =
-                            '<h2>Word</h2>' +
-                            '<div class="sub-item" onclick="togglePlaceholder(this)">&gt; Research</div>' +
-                            '<div class="placeholder">&gt; N/A (Courtesy: Hannah Sophia Gabi)</div>' +
-                            '<div class="sub-item" onclick="togglePlaceholder(this)">&gt; Questionnaire</div>' +
-                            '<div class="placeholder">&gt; N/A (Courtesy: Hannah Sophia Gabi)</div>';
-                        break;
-                    case 'excel':
-                        content.innerHTML =
-                            '<h2>Excel</h2>' +
-                            '<div class="sub-item" onclick="togglePlaceholder(this)">&gt; Data</div>' +
-                            '<div class="placeholder">&gt; N/A (Courtesy: Hannah Sophia Gabi)</div>';
-                        break;
-                    case 'powerpoint':
-                        content.innerHTML =
-                            '<h2>PowerPoint</h2>' +
-                            '<div class="sub-item" onclick="togglePlaceholder(this)">&gt; PowerPoint Presentation</div>' +
-                            '<div class="placeholder">&gt; N/A (Courtesy: Hannah Sophia Gabi)</div>';
-                        break;
-                }
-                content.style.opacity = '1';
-            }, 250);
-        }
+        const content = document.getElementById('content');
+        content.style.opacity = '0';
 
-        function toggleDropdown(element) {
-            document.querySelectorAll('.sub-item').forEach(item => item.classList.remove('highlighted'));
-            element.classList.add('highlighted');
-
-            const dropdown = element.nextElementSibling;
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function confirmMember(member) {
-            document.querySelectorAll('.dropdown-item').forEach(item => item.classList.remove('highlighted'));
-            event.target.classList.add('highlighted');
-
-            pendingMember = member;
-            document.getElementById('confirmation').style.display = 'block';
-        }
-
-        function confirmOpen() {
-            document.getElementById('confirmation').style.display = 'none';
-            openMember(pendingMember);
-            pendingMember = '';
-        }
-
-        function cancelOpen() {
-            document.getElementById('confirmation').style.display = 'none';
-            pendingMember = '';
-        }
-
-        function openMember(member) {
-            const content = document.getElementById('content');
-            content.style.opacity = '0';
-            setTimeout(() => {
-                let name = '';
-                let imgSrc = '';
-                let quote = '';
-                let helpedWith = '';
-                let trivia = '';
-                let rating = '';
-                let imgClass = '';
-                let infoClass = '';
-
-                switch(member) {
-                    case 'leader':
-                        name = 'Hannah Sophia Gabi';
-                        imgSrc = 'hannah.png';
-                        quote = 'Being alive is the biggest punishment as to being dead.';
-                        helpedWith = 'PowerPoint Presentation';
-                        trivia = 'She does not study honestly.';
-                        rating = '10/10';
-                        imgClass = 'hannah';
-                        infoClass = 'hannah';
-                        break;
-                    case 'website_maker':
-                        name = 'Jacob';
-                        imgSrc = 'jacob.png';
-                        quote = 'Life is not about avoiding the thunderstorms, its about learning how to dance in the rain.';
-                        helpedWith = 'Website and Excel.';
-                        trivia = 'He is infact Protanopic.';
-                        rating = '10/10';
-                        imgClass = 'jacob';
-                        infoClass = 'jacob';
-                        break;
-                    case 'member':
-                        name = 'Chase';
-                        imgSrc = 'chase.png';
-                        quote = 'You either interrupt the story or you stay in the same chapter';
-                        helpedWith = 'Questionnaire and Research';
-                        trivia = 'He used to be a extrovert';
-                        rating = '9/10';
-                        imgClass = 'chase';
-                        infoClass = 'chase';
-                        break;
-                }
-
-                content.innerHTML =
-                    '<div class="member-detail ' + imgClass + '">' +
-                    '<img src="' + imgSrc + '" alt="' + name + '">' +
-                    '<div class="member-info ' + infoClass + '">' +
-                    '<p>Name: ' + name + '</p>' +
-                    '<p>Quote: ' + quote + '</p>' +
-                    '<p>Helped with: ' + helpedWith + '</p>' +
-                    '<p>Trivia: ' + trivia + '</p>' +
-                    '<p>Rating: ' + rating + '</p>' +
-                    '</div></div>';
-
-                content.style.opacity = '1';
-            }, 250);
-        }
-
-        function togglePlaceholder(element) {
-            const content = element.closest('.content');
-            content.querySelectorAll('.sub-item').forEach(item => item.classList.remove('highlighted'));
-            element.classList.add('highlighted');
-
-            const placeholder = element.nextElementSibling;
-            placeholder.style.display = placeholder.style.display === 'block' ? 'none' : 'block';
-        }
-
-        function handleClose() {
-            if (currentCategory === 'members' && document.querySelector('.member-detail')) {
-                openCategory('members');
-            } else {
-                closeMain();
+        setTimeout(() => {
+            switch (cat) {
+                case 'members':
+                    content.innerHTML = `
+                        <div class="section-title">Members</div>
+                        <div class="section-sub">01 — TEAM ROSTER</div>
+                        ${makeSubItem('Leader')}
+                        <div class="dropdown"><div class="dropdown-item" onclick="confirmMember('leader')"><span class="label-text">Hannah Sophia Gabi</span></div></div>
+                        ${makeSubItem('Website Maker')}
+                        <div class="dropdown"><div class="dropdown-item" onclick="confirmMember('website_maker')"><span class="label-text">Jacob</span></div></div>
+                        ${makeSubItem('Members')}
+                        <div class="dropdown"><div class="dropdown-item" onclick="confirmMember('member')"><span class="label-text">Chase</span></div></div>
+                    `;
+                    break;
+                case 'word':
+                    content.innerHTML = `
+                        <div class="section-title">Word</div>
+                        <div class="section-sub">02 — DOCUMENTS</div>
+                        ${makeSubItem('Research')}
+                        <div class="placeholder">N/A — Courtesy: Hannah Sophia Gabi</div>
+                        ${makeSubItem('Questionnaire')}
+                        <div class="placeholder">N/A — Courtesy: Hannah Sophia Gabi</div>
+                    `;
+                    break;
+                case 'excel':
+                    content.innerHTML = `
+                        <div class="section-title">Excel</div>
+                        <div class="section-sub">03 — SPREADSHEETS</div>
+                        ${makeSubItem('Data')}
+                        <div class="placeholder">N/A — Courtesy: Hannah Sophia Gabi</div>
+                    `;
+                    break;
+                case 'powerpoint':
+                    content.innerHTML = `
+                        <div class="section-title">PowerPoint</div>
+                        <div class="section-sub">04 — PRESENTATIONS</div>
+                        ${makeSubItem('PowerPoint Presentation')}
+                        <div class="placeholder">N/A — Courtesy: Hannah Sophia Gabi</div>
+                    `;
+                    break;
             }
-        }
+            content.style.opacity = '1';
 
-        function closeMain() {
-            const sidebar = document.getElementById('sidebar');
-            const main = document.getElementById('main');
-            sidebar.classList.remove('expanded');
-            main.classList.remove('visible');
-            document.querySelectorAll('.category, .sub-item, .dropdown-item').forEach(item => item.classList.remove('highlighted'));
-            currentCategory = '';
+            // bind sub-items & dropdown items
+            content.querySelectorAll('.sub-item').forEach(el => {
+                el.addEventListener('click', () => toggleSubItem(el));
+                attachTypewriter(el);
+            });
+            content.querySelectorAll('.dropdown-item').forEach(el => {
+                attachTypewriter(el);
+            });
+        }, 220);
+    }
+
+    function makeSubItem(label) {
+        return `<div class="sub-item"><span class="arrow">▶</span><span class="label-text">${label}</span></div>`;
+    }
+
+    function toggleSubItem(el) {
+        const wasHighlighted = el.classList.contains('highlighted');
+        document.querySelectorAll('.sub-item').forEach(s => {
+            s.classList.remove('highlighted');
+            stopTypewriter(s);
+        });
+        const dd = el.nextElementSibling;
+        document.querySelectorAll('.dropdown, .placeholder').forEach(d => d.style.display = 'none');
+
+        if (!wasHighlighted) {
+            el.classList.add('highlighted');
+            startTypewriter(el);
+            if (dd) dd.style.display = 'block';
         }
-    </script>
+    }
+
+    function confirmMember(member) {
+        pendingMember = member;
+        document.getElementById('modal').classList.add('visible');
+    }
+    function confirmOpen() {
+        document.getElementById('modal').classList.remove('visible');
+        openMember(pendingMember);
+        pendingMember = '';
+    }
+    function cancelOpen() {
+        document.getElementById('modal').classList.remove('visible');
+        pendingMember = '';
+    }
+
+    function openMember(member) {
+        const content = document.getElementById('content');
+        content.style.opacity = '0';
+        setTimeout(() => {
+            const data = {
+                leader: {
+                    name: 'Hannah Sophia Gabi',
+                    role: 'Team Leader',
+                    quote: '"Being alive is the biggest punishment as to being dead."',
+                    helped: 'PowerPoint Presentation',
+                    trivia: 'She does not study honestly.',
+                    rating: '10 / 10',
+                    img: 'hannah.png',
+                    color: '#5e6aff'
+                },
+                website_maker: {
+                    name: 'Jacob',
+                    role: 'Website Maker',
+                    quote: '"Life is not about avoiding the thunderstorms, it\'s about learning how to dance in the rain."',
+                    helped: 'Website and Excel',
+                    trivia: 'He is in fact Protanopic.',
+                    rating: '10 / 10',
+                    img: 'jacob.png',
+                    color: '#a78bfa'
+                },
+                member: {
+                    name: 'Chase',
+                    role: 'Member',
+                    quote: '"You either interrupt the story or you stay in the same chapter."',
+                    helped: 'Questionnaire and Research',
+                    trivia: 'He used to be an extrovert.',
+                    rating: '9 / 10',
+                    img: 'chase.png',
+                    color: '#34d399'
+                }
+            }[member];
+
+            content.innerHTML = `
+                <div class="section-title">${data.name}</div>
+                <div class="section-sub" style="margin-bottom:28px;">${data.role.toUpperCase()}</div>
+                <div class="member-card">
+                    <div class="member-avatar-wrap">
+                        <img src="${data.img}" alt="${data.name}" onerror="this.style.background='${data.color}22';this.removeAttribute('src')">
+                        <div class="avatar-ring" style="border-color:${data.color};"></div>
+                    </div>
+                    <div class="member-info-grid">
+                        <div class="info-row">
+                            <div class="info-label">Quote</div>
+                            <div class="info-value" style="font-style:italic;color:#9ca3af;">${data.quote}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Helped With</div>
+                            <div class="info-value">${data.helped}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Trivia</div>
+                            <div class="info-value">${data.trivia}</div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-label">Rating</div>
+                            <div class="info-value"><span class="rating-badge" style="background:${data.color}22;border-color:${data.color}55;color:${data.color};">${data.rating}</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            content.style.opacity = '1';
+        }, 200);
+    }
+
+    function handleClose() {
+        if (currentCategory === 'members' && document.querySelector('.member-card')) {
+            openCategory('members');
+        } else {
+            closeMain();
+        }
+    }
+
+    function closeMain() {
+        document.getElementById('sidebar').classList.remove('expanded');
+        document.getElementById('main').classList.remove('visible');
+        document.querySelectorAll('.category').forEach(c => {
+            c.classList.remove('highlighted');
+            stopTypewriter(c);
+        });
+        currentCategory = '';
+    }
+</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- 2.27.26 last time worked on it.
 
 
